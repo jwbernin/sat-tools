@@ -7,7 +7,7 @@ import pprint
 
 class Satellite(object):
   def __init__(self, host):
-    self.sat_api = 'https://'+host+'/api/v2/'
+    self.sat_api = 'https://'+host
     self.username = ''
     self.password = ''
     self.forceSSL = False
@@ -45,17 +45,34 @@ class Satellite(object):
       return self.doPost(self.sat_api+location, data)
 
   def listHosts(self):
-    data = self.makeCall('hosts')
+    data = self.makeCall('/api/v2/hosts')
     if self.showResultsMeta:
       return data
     else:
       return data['results']
 
   def getHostErrata(self, hostID):
-    location='hosts/'+hostID+'/errata'
+    location='/api/v2/hosts/'+hostID+'/errata'
     data = self.makeCall(location)
     if self.showResultsMeta:
       return data
     else:
       return data['results']
 
+  def listHostCollections(self):
+    data = self.makeCall('/katello/api/host_collections')
+    if self.showResultsMeta:
+      return data
+    else:
+      return data['results']
+
+  def getHostCollection(self, id):
+    data = self.makeCall('/katello/api/host_collections/'+str(id))
+    return data
+
+  def getHost(self, id):
+    data = self.makeCall('/api/v2/hosts/'+str(id))
+    return data
+        
+    
+        
