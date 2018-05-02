@@ -24,9 +24,11 @@ def collectData():
   for hc in hcs:
     hcInfo = s.getHostCollection(hc['id'])
     hcInfo['errata'] = {}
+    hcInfo['errataRebootSuggested'] = False
     for id in hcInfo['host_ids']:
       errata = s.getHostErrata(str(id))
       for erratum in errata:
+        hcInfo['errataRebootSuggested'] = hcInfo['errataRebootSuggested'] or erratum['reboot_suggested']
         erratumID = erratum['errata_id']
         if erratumID not in listOfErrata.keys():
           listOfErrata[erratumID] = erratum
@@ -41,11 +43,11 @@ def generateODS():
   
   for hcName in sorted(listOfHostCollections):
     hcErrata = listOfHostCollections[hcName]['errata']
-    topSheet['Host Collections Report'].append([hcName, len(hcErrata)])
-    hostSheet = [[ "Errata Name", "Errata Type", "Numer of packages" ]]
+    topSheet['Host Collections Report'].append([hcName, len(hcErrata), 'REBOOT' if listOfHostCollections[hcName]['errataRebootSuggested'] else '' ])
+    hostSheet = [[ "Errata Name", "Errata Type", "Numer of packages", "Reboot Suggested?" ]]
     for errataName in sorted(hcErrata):
       errataInfo = hcErrata[errataName]
-      hostSheet.append([errataName, errataInfo['type'], len(errataInfo['packages'])])
+      hostSheet.append([errataName, errataInfo['type'], len(errataInfo['packages']), 'YES' if errataInfo['reboot_suggested'] else 'NO' ])
     errataWorkbook.update(topSheet)
     errataWorkbook.update({hcName:hostSheet})
     
@@ -56,6 +58,7 @@ def generateODS():
     errataSheet.append(["ID:", errata['errata_id']])
     errataSheet.append(["Name:", errata['name']])
     errataSheet.append(["Type:", errata['type']])
+    errataSheet.append(["Reboot Suggested?", 'YES' if errata['reboot_suggested'] else 'NO'])
     errataSheet.append(["Affected packages:"])
     for pkg in errata['packages']:
       errataSheet.append(["",pkg])
