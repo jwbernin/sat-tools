@@ -4,6 +4,8 @@ import json
 import sys
 import requests
 import pprint
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class Satellite(object):
   def __init__(self, host):
@@ -27,7 +29,7 @@ class Satellite(object):
     self.showResultsMeta = resultsMeta
 
   def doGet(self, url):
-    request = self.session.get(url, auth=(self.username, self.password))
+    request = self.session.get(url, auth=(self.username, self.password), verify=False)
     if request.status_code != 200:
       pprint.pprint(request.text)
       print (request.url)
@@ -35,7 +37,7 @@ class Satellite(object):
     return request.json()
 
   def doPost(self, url, data={}):
-    request = self.session.post(url, auth=(self.username, self.password), data=data)
+    request = self.session.post(url, auth=(self.username, self.password), data=data, verify=False)
     return request.json()
 
   def makeCall(self, location, data={}):
