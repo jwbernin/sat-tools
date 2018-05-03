@@ -1,4 +1,4 @@
 *.py[cdo]
-test.py
+test*.py
 credentials.json
 *~
