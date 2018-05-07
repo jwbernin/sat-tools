@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-import sys
-import pprint
+
 import json
 import collections
 from pyexcel_ods import save_data
@@ -39,9 +38,9 @@ def collectData():
     hcInfo = s.getHostCollection(hc['id'])
     hcInfo['errata'] = {}
     hcInfo['errataRebootSuggested'] = False
-    for id in hcInfo['host_ids']:
+    for hcID in hcInfo['host_ids']:
       printDBG(3, "Examining collection member host")
-      errata = s.getHostErrata(str(id))
+      errata = s.getHostErrata(str(hcID))
       for erratum in errata:
         hcInfo['errataRebootSuggested'] = hcInfo['errataRebootSuggested'] or erratum['reboot_suggested']
         erratumID = erratum['errata_id']
@@ -54,7 +53,6 @@ def collectData():
 
 def generateODS():        
   topSheet = {"Host Collections Report":[]}
-  serverSheets = {}
   
   for hcName in sorted(listOfHostCollections):
     hcErrata = listOfHostCollections[hcName]['errata']
