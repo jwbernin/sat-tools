@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import sys
-import pprint
 import json
 import collections
 from pyexcel_ods import save_data
@@ -58,7 +56,6 @@ def collectData():
 def generateODS():
   printDBG(1, "Generating report in ODS format")
   sheet1 = {"Hosts Report":[]}
-  serverSheets = {}
   
   printDBG(2, "Generating host sheets")
   for hostName in sorted(listOfHosts):

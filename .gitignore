@@ -2,3 +2,5 @@
 test*.py
 credentials.json
 *~
+.project
+.pydevproject
