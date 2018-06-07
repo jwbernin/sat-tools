@@ -76,8 +76,11 @@ class Satellite(object):
     data = self.makeCall('/api/v2/hosts/'+str(id))
     return data
 
-  def getSubscriptions(self):
-    data = self.makeCall('/katello/api/subscriptions')
+  def getSubscriptions(self, searchString):
+    if searchString:
+      data = self.makeCall('/katello/api/subscriptions?search='+searchString)
+    else:
+      data = self.makeCall('/katello/api/subscriptions')
     return data        
     
         
