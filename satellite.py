@@ -83,4 +83,6 @@ class Satellite(object):
       data = self.makeCall('/katello/api/subscriptions')
     return data        
     
-        
+  def getCVHistory(self, cvID):
+    data = self.makeCall('/katello/api/content_views/'+str(cvID)+'/history')
+    return data
