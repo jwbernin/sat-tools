@@ -114,6 +114,7 @@ def generateXLSX():
     topSheet.write(sheetRow, 7, thisHost['pkgUpdates'])
     topSheet.write(sheetRow, 8, thisHost['subStatus'])
     topSheet.write(sheetRow, 9, thisHost['uptime'])
+    sheetRow+=1
   printDBG(2, 'Saving XLSX workbook')
   workbook.close()
   
@@ -122,7 +123,6 @@ def generateCSV():
   f.write("Host name,IP Address,Lifecycle Environment,Content View,# security errata,# bugfix errata,# enhancement errata,# upgradeable packages,Subscription status\n")
   for key in hostObjects.keys():
     host = hostObjects[key]
-    pprint.pprint(host)
     f.write(','.join([key, host['ip'], host['lifecycleEnvironment'], host['contentView'], host['secErrata'], host['bugErrata'], host['enhErrata'], host['pkgUpdates'], host['subStatus']]))
     f.write('\n')
   f.close()
