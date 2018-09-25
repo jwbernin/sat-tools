@@ -32,4 +32,4 @@ def collectData():
   h=s.listHosts()
   for name in h:
     hostDetail = s.getHost(name['id'])
-    
+    pprint.pprint(hostDetail)
