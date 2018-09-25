@@ -88,7 +88,34 @@ def generateODS():
 
   
 def generateXLSX():
-  pass
+  printDBG(1, 'Generating output in XLSX format')
+  workbook = xlsxwriter.Workbook('basicHostInfo.xlsx')
+  topSheet = workbook.add_worksheet('Hosts Report')
+  sheetRow = 1;
+  topSheet.write(0, 0, 'Host Name')
+  topSheet.write(0, 1, 'IP Address')
+  topSheet.write(0, 2, 'Lifecycle Environment')
+  topSheet.write(0, 3, 'Content View')
+  topSheet.write(0, 4, 'Security Errata count')
+  topSheet.write(0, 5, 'Bugfix errata count')
+  topSheet.write(0, 6, 'Enhancement errata count')
+  topSheet.write(0, 7, 'Upgradeable package count')
+  topSheet.write(0, 8, 'Subscription Status')
+  topSheet.write(0, 9, 'Uptime')
+  for key in hostObjects.keys():
+    thisHost = hostObjects[key]
+    topSheet.write(sheetRow, 0, key)
+    topSheet.write(sheetRow, 1, thisHost['ip'])
+    topSheet.write(sheetRow, 2, thisHost['lifecycleEnvironment'])
+    topSheet.write(sheetRow, 3, thisHost['contentView'])
+    topSheet.write(sheetRow, 4, thisHost['secErrata'])
+    topSheet.write(sheetRow, 5, thisHost['bugErrata'])
+    topSheet.write(sheetRow, 6, thisHost['enhErrata'])
+    topSheet.write(sheetRow, 7, thisHost['pkgUpdates'])
+    topSheet.write(sheetRow, 8, thisHost['subStatus'])
+    topSheet.write(sheetRow, 9, thisHost['uptime'])
+  printDBG(2, 'Saving XLSX workbook')
+  workbook.close()
   
 def generateCSV():
   f = open('basicHostInfo.csv', 'w')
@@ -103,7 +130,6 @@ def generateCSV():
     
 if __name__ == '__main__':
   collectData()
-  pprint.pprint(hostObjects)
   if args.outfmt == 'ods':
     generateODS()
   elif args.outfmt == 'xlsx':
