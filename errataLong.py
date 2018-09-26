@@ -43,6 +43,12 @@ def collectData():
     object['secErrata'] = ver['errata_counts']['security']
     object['bugErrata'] = ver['errata_counts']['bugfix']
     object['enhErrata'] = ver['errata_counts']['enhancement']
+    if type(object['secErrata']) == NoneType:
+      object['secErrata'] = 0
+    if type(object['bugErrata']) == NoneType:
+      object['bugErrata'] = 0
+    if type(object['enhErrata']) == NoneType:
+      object['enhErrata'] = 0
     object['created'] = ver['created_at']
     object['errata'] = {}
     printDBG(3, 'Getting errata for CV Ver '+name)
@@ -90,8 +96,40 @@ def generateODS():
 def generateXLSX():
   print "XLSX OUTPUT NOT YET IMPLEMENTED"
   printDBG(1, 'Generating output in XLSX format')
-  workbook = xlsxwriter.Workbook('basicHostInfo.xlsx')
-  topSheet = workbook.add_worksheet('Hosts Report')
+  workbook = xlsxwriter.Workbook('CVVersionsErrata.xlsx')
+  topSheet = workbook.add_worksheet('CV Version Errata Report')
+  topsheet.write(0, 0, 'Content View Name & Version')
+  topsheet.write(0, 1, 'Initial publication date')
+  topsheet.write(0, 2, 'Security errata')
+  topsheet.write(0, 3, 'Bugfix errata')
+  topsheet.write(0, 4, 'Enhancement errata')
+  topsheet.write(0, 5, 'Total errata')
+  sheetRow = 1
+  for name in cVVObjects.keys():
+    cvv = cVVObjects[name]
+    thisSheet = workbook.add_worksheet(name)
+    thisSheet.write(0, 0, "Errata Identifier")
+    thisSheet.write(0, 1, "Errata Name")
+    thisSheet.write(0, 2, "Type")
+    thisSheet.write(0, 3, "Issue date")
+    thisSheet.write(0, 4, "CVEs")
+    thisSheetRow = 1
+    topSheet.write(sheetRow, 0, name)
+    topsheet.write(sheetRow, 1, cvv['created'])
+    topsheet.write(sheetRow, 2, cvv['secErrata'])
+    topsheet.write(sheetRow, 3, cvv['bugErrata'])
+    topsheet.write(sheetRow, 4, cvv['enhErrata'])
+    topsheet.write(sheetRow, 5, cvv['secErrata']+cvv['bugErrata']+cvv['enhErrata'])
+    for eID in cvv['errata'].keys():
+      eo = cvv['errata'][eID]
+      thisSheet.write(thisSheetRow, 0, eID)
+      thisSheet.write(thisSheetRow, 1, eo['name'])
+      thisSheet.write(thisSheetRow, 2, eo['type'])
+      thisSheet.write(thisSheetRow, 3, eo['issued'])
+      thisSheet.write(thisSheetRow, 4, ','.join(eo['cves']))
+      thisSheetRow+=1
+    sheetRow+=1
+  
   printDBG(2, 'Saving XLSX workbook')
   workbook.close()
   
