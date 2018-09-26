@@ -5,3 +5,5 @@ credentials.json
 .project
 .pydevproject
 *.csv
+*.ods
+*.xlsx

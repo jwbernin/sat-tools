@@ -86,3 +86,20 @@ class Satellite(object):
   def getCVHistory(self, cvID):
     data = self.makeCall('/katello/api/content_views/'+str(cvID)+'/history')
     return data
+
+  def getErrata(self):
+    data = self.makeCall('/katello/api/errata')
+    return data  
+    
+  def getCVVersions(self):
+    data = self.makeCall('/katello/api/content_view_versions')
+    return data
+    
+  def getCVVer(self, id):
+    data = self.makeCall('/katello/api/content_view_versions/'+str(id))
+    return data
+    
+  # THIS CALL IS NOT DOCUMENTED IN THE API DOC!!
+  def getCVVerErrata(self, cvVerID):
+    data = self.makeCall('/katello/api/v2/errata?content_view_version_id='+str(cvVerID)+'&per_page=50000')
+    return data
