@@ -43,11 +43,11 @@ def collectData():
     object['secErrata'] = ver['errata_counts']['security']
     object['bugErrata'] = ver['errata_counts']['bugfix']
     object['enhErrata'] = ver['errata_counts']['enhancement']
-    if type(object['secErrata']) == NoneType:
+    if type(object['secErrata']) == type(None):
       object['secErrata'] = 0
-    if type(object['bugErrata']) == NoneType:
+    if type(object['bugErrata']) == type(None):
       object['bugErrata'] = 0
-    if type(object['enhErrata']) == NoneType:
+    if type(object['enhErrata']) == type(None):
       object['enhErrata'] = 0
     object['created'] = ver['created_at']
     object['errata'] = {}
@@ -94,7 +94,6 @@ def generateODS():
 
   
 def generateXLSX():
-  print "XLSX OUTPUT NOT YET IMPLEMENTED"
   printDBG(1, 'Generating output in XLSX format')
   workbook = xlsxwriter.Workbook('CVVersionsErrata.xlsx')
   topSheet = workbook.add_worksheet('CV Version Errata Report')
@@ -115,11 +114,11 @@ def generateXLSX():
     thisSheet.write(0, 4, "CVEs")
     thisSheetRow = 1
     topSheet.write(sheetRow, 0, name)
-    topsheet.write(sheetRow, 1, cvv['created'])
-    topsheet.write(sheetRow, 2, cvv['secErrata'])
-    topsheet.write(sheetRow, 3, cvv['bugErrata'])
-    topsheet.write(sheetRow, 4, cvv['enhErrata'])
-    topsheet.write(sheetRow, 5, cvv['secErrata']+cvv['bugErrata']+cvv['enhErrata'])
+    topSheet.write(sheetRow, 1, cvv['created'])
+    topSheet.write(sheetRow, 2, cvv['secErrata'])
+    topSheet.write(sheetRow, 3, cvv['bugErrata'])
+    topSheet.write(sheetRow, 4, cvv['enhErrata'])
+    topSheet.write(sheetRow, 5, cvv['secErrata']+cvv['bugErrata']+cvv['enhErrata'])
     for eID in cvv['errata'].keys():
       eo = cvv['errata'][eID]
       thisSheet.write(thisSheetRow, 0, eID)
