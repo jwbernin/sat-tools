@@ -98,12 +98,12 @@ def generateXLSX():
   printDBG(1, 'Generating output in XLSX format')
   workbook = xlsxwriter.Workbook('CVVersionsErrata.xlsx')
   topSheet = workbook.add_worksheet('CV Version Errata Report')
-  topsheet.write(0, 0, 'Content View Name & Version')
-  topsheet.write(0, 1, 'Initial publication date')
-  topsheet.write(0, 2, 'Security errata')
-  topsheet.write(0, 3, 'Bugfix errata')
-  topsheet.write(0, 4, 'Enhancement errata')
-  topsheet.write(0, 5, 'Total errata')
+  topSheet.write(0, 0, 'Content View Name & Version')
+  topSheet.write(0, 1, 'Initial publication date')
+  topSheet.write(0, 2, 'Security errata')
+  topSheet.write(0, 3, 'Bugfix errata')
+  topSheet.write(0, 4, 'Enhancement errata')
+  topSheet.write(0, 5, 'Total errata')
   sheetRow = 1
   for name in cVVObjects.keys():
     cvv = cVVObjects[name]
