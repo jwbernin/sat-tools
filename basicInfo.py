@@ -72,7 +72,7 @@ def collectData():
     cmd = "ssh root@"+hostName+" yum -q history"
     yumhist = os.popen(cmd).read()
     try:
-      patchDate = ' '.join(yumhist.split('\n')[2].split()[5:6])
+      patchDate = ' '.join(yumhist.split('\n')[2].split()[5:7])
       hostObjects[hostName]['lastUpdate'] = patchDate
     except:
       hostObjects[hostName]['lastUpdate'] = "Unable to get information"
