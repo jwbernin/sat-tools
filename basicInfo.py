@@ -68,6 +68,12 @@ def collectData():
     lastboot = os.popen(cmd).read()
     hostObjects[hostName]['uptime'] = ' '.join(lastboot.strip().split()[2:4])
     printDBG(2, lastboot)
+    # Get last update time from host - not the same assumption as above applies
+    cmd = "ssh root@"+hostName+" yum -q history"
+    yumhist = os.popen(cmd).read()
+    patchDate = ' '.join(yumhist.split('\n')[2].split()[5:6])
+    hostObjects[hostName]['lastUpdate'] = patchDate
+
         
 def generateODS():
   printDBG(1, "Generating report in ODS format")
@@ -75,13 +81,13 @@ def generateODS():
   sheet1['Hosts Report'].append(["Host Name", "IP Address", "Lifecycle Environment", 
       "Content View", "Security errata count", "Bugfix errata count", 
       "Enhancement errata count", "Upgradeable package count",
-      "Subscription status", "Last boot time"])
+      "Subscription status", "Last boot time", "Last package update time"])
   for key in hostObjects.keys():
     hostItem = hostObjects[key]
     sheet1['Hosts Report'].append([key, hostItem['ip'], hostItem['lifecycleEnvironment'],
         hostItem['contentView'], hostItem['secErrata'], hostItem['bugErrata'],
         hostItem['enhErrata'], hostItem['pkgUpdates'], hostItem['subStatus'],
-        hostItem['uptime']])
+        hostItem['uptime'], hostItem['lastUpdate']])
   printDBG(2, "Saving host report")
   hostWorkbook.update(sheet1)
   save_data('basicHostInfo.ods', hostWorkbook)
@@ -102,6 +108,7 @@ def generateXLSX():
   topSheet.write(0, 7, 'Upgradeable package count')
   topSheet.write(0, 8, 'Subscription Status')
   topSheet.write(0, 9, 'Uptime')
+  topSheet.write(0,10, 'Last Update')
   for key in hostObjects.keys():
     thisHost = hostObjects[key]
     topSheet.write(sheetRow, 0, key)
@@ -114,6 +121,7 @@ def generateXLSX():
     topSheet.write(sheetRow, 7, thisHost['pkgUpdates'])
     topSheet.write(sheetRow, 8, thisHost['subStatus'])
     topSheet.write(sheetRow, 9, thisHost['uptime'])
+    topSheet.write(sheetRow,10, thisHost['lastUpdate'])
     sheetRow+=1
   printDBG(2, 'Saving XLSX workbook')
   workbook.close()
@@ -123,7 +131,7 @@ def generateCSV():
   f.write("Host name,IP Address,Lifecycle Environment,Content View,# security errata,# bugfix errata,# enhancement errata,# upgradeable packages,Subscription status\n")
   for key in hostObjects.keys():
     host = hostObjects[key]
-    f.write(','.join([key, host['ip'], host['lifecycleEnvironment'], host['contentView'], host['secErrata'], host['bugErrata'], host['enhErrata'], host['pkgUpdates'], host['subStatus']]))
+    f.write(','.join([key, host['ip'], host['lifecycleEnvironment'], host['contentView'], host['secErrata'], host['bugErrata'], host['enhErrata'], host['pkgUpdates'], host['subStatus'], host['lastUpdate']]))
     f.write('\n')
   f.close()
   printDBG(2, "Done writing CSV file")      
