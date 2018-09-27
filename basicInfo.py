@@ -71,9 +71,11 @@ def collectData():
     # Get last update time from host - not the same assumption as above applies
     cmd = "ssh root@"+hostName+" yum -q history"
     yumhist = os.popen(cmd).read()
-    patchDate = ' '.join(yumhist.split('\n')[2].split()[5:6])
-    hostObjects[hostName]['lastUpdate'] = patchDate
-
+    try:
+      patchDate = ' '.join(yumhist.split('\n')[2].split()[5:6])
+      hostObjects[hostName]['lastUpdate'] = patchDate
+    except:
+      hostObjects[hostName]['lastUpdate'] = "Unable to get information"
         
 def generateODS():
   printDBG(1, "Generating report in ODS format")
