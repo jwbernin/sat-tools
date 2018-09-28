@@ -40,6 +40,7 @@ def collectData():
     cVVObjects[name] = {}
     object = cVVObjects[name]
     object['id'] = ver['id']
+    object['cvID'] = ver['content_view_id']
     object['secErrata'] = ver['errata_counts']['security']
     object['bugErrata'] = ver['errata_counts']['bugfix']
     object['enhErrata'] = ver['errata_counts']['enhancement']
@@ -63,6 +64,9 @@ def collectData():
       for cve in erratum['cves']:
         eo['cves'].append(cve['cve_id'])
       object['errata'][erratum['errata_id']] = eo
+
+  for revName in cVVObjects.keys().sort(reverse=True):
+    print revName
         
 def generateODS():
   printDBG(1, "Generating report in ODS format")
@@ -132,15 +136,6 @@ def generateXLSX():
   printDBG(2, 'Saving XLSX workbook')
   workbook.close()
   
-def generateCSV():
-  f = open('basicHostInfo.csv', 'w')
-  f.write("Host name,IP Address,Lifecycle Environment,Content View,# security errata,# bugfix errata,# enhancement errata,# upgradeable packages,Subscription status\n")
-  for key in hostObjects.keys():
-    host = hostObjects[key]
-    f.write(','.join([key, host['ip'], host['lifecycleEnvironment'], host['contentView'], host['secErrata'], host['bugErrata'], host['enhErrata'], host['pkgUpdates'], host['subStatus']]))
-    f.write('\n')
-  f.close()
-  printDBG(2, "Done writing CSV file")      
     
 if __name__ == '__main__':
   collectData()
@@ -148,6 +143,4 @@ if __name__ == '__main__':
     generateODS()
   elif args.outfmt == 'xlsx':
     generateXLSX()
-  elif args.outfmt == 'csv':
-    generateCSV()
     
