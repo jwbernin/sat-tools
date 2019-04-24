@@ -1,0 +1,25 @@
+---
+- hosts: satellite.ncphotography.lan
+  tasks:
+    - name: get all CVs
+      shell: hammer --csv content-view list | tail -n +3 | awk -F, '{print $2}'
+      register: satellite_cvs
+
+    - name: store list of CVs
+      set_fact: cvs="{{ satellite_cvs.stdout.split('\n') }}"
+
+    - name: get all LEs
+      shell: hammer --csv lifecycle-environment list | tail -n +3 | awk -F, '{print $2}'
+      register: satellite_les
+
+    - name: store list of LEs
+      set_fact: les="{{ satellite_les.stdout.split('\n') }}"
+
+    - name: publish new CV
+      command: hammer content-view publish --name {{ item }} --force-yum-metadata-regeneration 1 --organization NCP
+      with_items: "{{ cvs }}"
+
+    - name: promote new version to ALL LEs
+      command: hammer content-view version promote --content-view {{item.0}} --from-lifecycle-environment Library --to-lifecycle-environment {{item.1}} --force-yum-metadata-regeneration 1 --organization NCP
+      loop: "{{ cvs  |product(les) | list }}"
+

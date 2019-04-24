@@ -1,0 +1,31 @@
+---
+- hosts: satellite.ncphotography.lan
+  vars:
+    cvs:
+      - RHEL5
+      - RHEL6
+      - RHEL7
+      - RHEL8
+    leps:
+      - APP
+      - DB
+      - WEB
+      - SEC
+    les:
+      - DEV
+      - TEST
+      - QA
+      - PROD
+    lifecycle_envs: {}
+
+  tasks:
+    - name: generate sets of LEs to be created
+      set_fact: lenvs="{{ leps|product(les)|list }}"
+
+    - debug: lenvs.items
+
+    - name: store list of LEs
+      set_fact: lifecycle_envs="{{lifecycle_envs}} + [ {{item.join('-')}} ]"
+      with_items: lenvs
+
+    - debug: var=lifecycle_envs
