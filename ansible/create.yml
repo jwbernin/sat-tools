@@ -1,11 +1,12 @@
 ---
 - hosts: satellite.ncphotography.lan
   vars:
+    myOrg: NCP
     cvs:
-      - RHEL5
-      - RHEL6
-      - RHEL7
-      - RHEL8
+      - R5
+      - R6
+      - R7
+      - R8
     leps:
       - APP
       - DB
@@ -19,13 +20,21 @@
     lifecycle_envs: {}
 
   tasks:
-    - name: generate sets of LEs to be created
-      set_fact: lenvs="{{ leps|product(les)|list }}"
+    - name: create LEPs
+      include_tasks: leploop.yml
+      with_items:
+      - "{{ leps }}"
+      loop_control:
+        loop_var: pathname
+      
 
-    - debug: lenvs.items
 
-    - name: store list of LEs
-      set_fact: lifecycle_envs="{{lifecycle_envs}} + [ {{item.join('-')}} ]"
-      with_items: lenvs
+    #- name: generate sets of LEs to be created
+    #  set_fact: lenvs="{{ leps|product(les)|list }}"
+    #- debug: lenvs.items
 
-    - debug: var=lifecycle_envs
+    #- name: store list of LEs
+    #  set_fact: lifecycle_envs="{{lifecycle_envs}} + [ {{item.join('-')}} ]"
+    #  with_items: lenvs
+
+    #- debug: var=lifecycle_envs

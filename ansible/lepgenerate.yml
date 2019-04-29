@@ -1,0 +1,4 @@
+- name: Create lifecycle environment
+  command: "hammer lifecycle-environment create --name {{pathname}}-{{item}} --prior {{env_prev|default('Library')}} --organization {{myOrg}}"
+- set_fact:
+    env_prev: "{{pathname}}-{{item}}"

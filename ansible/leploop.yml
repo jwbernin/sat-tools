@@ -1,0 +1,7 @@
+- name: start iteration
+  set_fact:
+    env_prev: "Library"
+
+- include_tasks: lepgenerate.yml
+  with_items: "{{ les }}"
+
