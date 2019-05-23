@@ -49,6 +49,7 @@ def collectData():
       hostObjects[hostName]['bugErrata'] = str(hostDetail['content_facet_attributes']['errata_counts']['bugfix'])
       hostObjects[hostName]['enhErrata'] = str(hostDetail['content_facet_attributes']['errata_counts']['enhancement'])
       hostObjects[hostName]['pkgUpdates'] = str(hostDetail['content_facet_attributes']['upgradable_package_count'])
+      hostObjects[hostName]['katelloAgent'] = str(hostDetail['content_facet_attributes']['katello_agent_installed'])
     else:
       hostObjects[hostName]['lifecycleEnvironment'] = 'NO DATA'
       hostObjects[hostName]['contentView'] = 'NO DATA'
@@ -56,26 +57,12 @@ def collectData():
       hostObjects[hostName]['bugErrata'] = 'NO DATA'
       hostObjects[hostName]['enhErrata'] = 'NO DATA'
       hostObjects[hostName]['pkgUpdates'] = 'NO DATA'
+      hostObjects[hostName]['katelloAgent'] = 'NO DATA'
     
     if hostDetail.has_key('subscription_status_label'):
       hostObjects[hostName]['subStatus'] = hostDetail['subscription_status_label']
     else:
       hostObjects[hostName]['subStatus'] = 'NO DATA'
-    # Get uptime direct from host
-    # Assumption: the user we are running as can SSH into all the boxes
-    #   w/o a password.    
-    cmd = "ssh root@"+hostName+" who -b"
-    lastboot = os.popen(cmd).read()
-    hostObjects[hostName]['uptime'] = ' '.join(lastboot.strip().split()[2:4])
-    printDBG(2, lastboot)
-    # Get last update time from host - not the same assumption as above applies
-    cmd = "ssh root@"+hostName+" yum -q history"
-    yumhist = os.popen(cmd).read()
-    try:
-      patchDate = ' '.join(yumhist.split('\n')[2].split()[5:7])
-      hostObjects[hostName]['lastUpdate'] = patchDate
-    except:
-      hostObjects[hostName]['lastUpdate'] = "Unable to get information"
         
 def generateODS():
   printDBG(1, "Generating report in ODS format")
@@ -83,13 +70,13 @@ def generateODS():
   sheet1['Hosts Report'].append(["Host Name", "IP Address", "Lifecycle Environment", 
       "Content View", "Security errata count", "Bugfix errata count", 
       "Enhancement errata count", "Upgradeable package count",
-      "Subscription status", "Last boot time", "Last package update time"])
+      "Subscription status", "Katello Agent Status"])
   for key in hostObjects.keys():
     hostItem = hostObjects[key]
     sheet1['Hosts Report'].append([key, hostItem['ip'], hostItem['lifecycleEnvironment'],
         hostItem['contentView'], hostItem['secErrata'], hostItem['bugErrata'],
         hostItem['enhErrata'], hostItem['pkgUpdates'], hostItem['subStatus'],
-        hostItem['uptime'], hostItem['lastUpdate']])
+        hostItem['katelloAgent']])
   printDBG(2, "Saving host report")
   hostWorkbook.update(sheet1)
   save_data('basicHostInfo.ods', hostWorkbook)
@@ -109,8 +96,7 @@ def generateXLSX():
   topSheet.write(0, 6, 'Enhancement errata count')
   topSheet.write(0, 7, 'Upgradeable package count')
   topSheet.write(0, 8, 'Subscription Status')
-  topSheet.write(0, 9, 'Uptime')
-  topSheet.write(0,10, 'Last Update')
+  topSheet.write(0, 9, 'Katello present?')
   for key in hostObjects.keys():
     thisHost = hostObjects[key]
     topSheet.write(sheetRow, 0, key)
@@ -122,8 +108,7 @@ def generateXLSX():
     topSheet.write(sheetRow, 6, thisHost['enhErrata'])
     topSheet.write(sheetRow, 7, thisHost['pkgUpdates'])
     topSheet.write(sheetRow, 8, thisHost['subStatus'])
-    topSheet.write(sheetRow, 9, thisHost['uptime'])
-    topSheet.write(sheetRow,10, thisHost['lastUpdate'])
+    topSheet.write(sheetRow, 9, thisHost['katelloAgent'])
     sheetRow+=1
   printDBG(2, 'Saving XLSX workbook')
   workbook.close()
@@ -133,7 +118,7 @@ def generateCSV():
   f.write("Host name,IP Address,Lifecycle Environment,Content View,# security errata,# bugfix errata,# enhancement errata,# upgradeable packages,Subscription status\n")
   for key in hostObjects.keys():
     host = hostObjects[key]
-    f.write(','.join([key, host['ip'], host['lifecycleEnvironment'], host['contentView'], host['secErrata'], host['bugErrata'], host['enhErrata'], host['pkgUpdates'], host['subStatus'], host['lastUpdate']]))
+    f.write(','.join([key, host['ip'], host['lifecycleEnvironment'], host['contentView'], host['secErrata'], host['bugErrata'], host['enhErrata'], host['pkgUpdates'], host['subStatus'], host['katelloAgent']]))
     f.write('\n')
   f.close()
   printDBG(2, "Done writing CSV file")      

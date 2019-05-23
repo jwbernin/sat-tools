@@ -47,7 +47,7 @@ class Satellite(object):
       return self.doPost(self.sat_api+location, data)
 
   def listHosts(self):
-    data = self.makeCall('/api/v2/hosts')
+    data = self.makeCall('/api/v2/hosts?per_page=50000')
     if self.showResultsMeta:
       return data
     else:
@@ -99,6 +99,15 @@ class Satellite(object):
     data = self.makeCall('/katello/api/content_view_versions/'+str(id))
     return data
     
+  def getHostSubscriptions(self, id):
+    data = self.makeCall('/api/v2/hosts/'+str(id)+'/subscriptions')
+    if ( type(None) == type(data) ):
+      return None
+    if self.showResultsMeta:
+      return data
+    else:
+      return data['results']
+
   # THIS CALL IS NOT DOCUMENTED IN THE API DOC!!
   def getCVVerErrata(self, cvVerID):
     data = self.makeCall('/katello/api/v2/errata?content_view_version_id='+str(cvVerID)+'&per_page=50000')
