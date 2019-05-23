@@ -26,13 +26,13 @@ with open('credentials.json') as credentialfile:
 printDBG(3, "Satellite credentials loaded.")
 
 def collectData():
-  hostItem = {}
   printDBG(1, "Collecting data from Satellite")
   s = Satellite(credentials['hostname'])
   s.setUsername(credentials['username'])
   s.setPassword(credentials['password'])
   h=s.listHosts()
   for host in h:
+    hostItem = {}
     hostItem['name']=host['name']
     hostItem['subs']=[]
     subItems=s.getHostSubscriptions(str(host['id']))
@@ -40,6 +40,8 @@ def collectData():
       continue
     for item in subItems:
       si={}
+      if ( 'name' not in item):
+        continue
       if ( item['name'] in [ 'EPEL', 'FPLInternal' ] ):
         continue
       si['accountNum'] = item['account_number']
@@ -48,8 +50,6 @@ def collectData():
       si['name'] = item['name']
       hostItem['subs'].append(si)
     listOfHosts.append(hostItem)
-  import pprint
-  pprint.pprint(listOfHosts)
 
 ## REDO OUPUT
 
@@ -57,78 +57,42 @@ def generateODS():
   printDBG(1, "Generating report in ODS format")
   sheet1 = {"Hosts Report":[]}
   
+  sheet1['Hosts Report'].append(["HOSTNAME"])
+  sheet1['Hosts Report'].append(["Account number", "Contract number", "End Date", "Subscription Name"])
   printDBG(2, "Generating host sheets")
-  for hostName in sorted(listOfHosts):
-    hostErrata = listOfHosts[hostName]['errata']
-    sheet1['Hosts Report'].append([hostName, len(listOfHosts[hostName]['errata']), 'REBOOT' if listOfHosts[hostName]['errata_reboot_suggested'] else '' ])
-    hostSheet = [["Errata Name", "Errata Type", "Number of packages"]]
-    for errataName in sorted(hostErrata):
-      errataInfo = hostErrata[errataName]
-      hostSheet.append([errataName, errataInfo['type'], len(errataInfo['packages']), 'REBOOT' if errataInfo['reboot_suggested'] else ''])
+  for host in sorted(listOfHosts):
+    sheet1['Hosts Report'].append(["Host name "+host['name']])
+    for sub in host['subs']:
+      sheet1['Hosts Report'].append([ sub['accountNum'], sub['contractNum'], sub['endDate'], sub['name'] ] )
+      errataWorkbook.update(sheet1)
     errataWorkbook.update(sheet1)
-    errataWorkbook.update({hostName:hostSheet})
-  
-  printDBG(2, "Generating errata sheets")
-  for errataName in sorted(listOfErrata):
-    errata = listOfErrata[errataName]
-    errataID = errata['errata_id'].replace(":", "-")
-    errataSheet = []
-    errataSheet.append(["ID:", errata['errata_id']])
-    errataSheet.append(["Name:", errata['name']])
-    errataSheet.append(["Type:", errata['type']])
-    errataSheet.append(["Reboot Suggested:", 'YES' if errata['reboot_suggested'] else 'NO'])
-    errataSheet.append(["Affected packages:"])
-    for pkg in errata['packages']:
-      errataSheet.append(["",pkg])
-    errataWorkbook.update({errataID:errataSheet})
     
   printDBG(2, "Saving workbook")
-  save_data('erratainfo.ods', errataWorkbook)
+  save_data('subscriptioninfo.ods', errataWorkbook)
 
 def generateXLSX():
   printDBG(1, "Generating report in XLSX format")
-  workbook = xlsxwriter.Workbook('errataByHost.xlsx')
+  workbook = xlsxwriter.Workbook('subscriptioninfo.xlsx')
   topSheet = workbook.add_worksheet('Hosts Report')
   topSheetRow = 0
   
   printDBG(2, "Generating host sheets")
   for hostName in sorted(listOfHosts):
-    hostErrata = listOfHosts[hostName]['errata']
-    thisSheet = workbook.add_worksheet(hostName)
-    thisSheet.write(0, 0, "Errata Name")
-    thisSheet.write(0, 1, "Errata Type")
-    thisSheet.write(0, 2, "Number of packages")
-    topSheet.write(topSheetRow, 0, hostName)
-    topSheet.write(topSheetRow, 1, len(listOfHosts[hostName]['errata']))
-    topSheet.write(topSheetRow, 2, 'REBOOT' if listOfHosts[hostName]['errata_reboot_suggested'] else '')
-    topSheetRow+=1
-    hostSheetRow = 1
-    for errataName in sorted(hostErrata):
-      errataInfo = hostErrata[errataName]
-      thisSheet.write(hostSheetRow, 0, errataName)
-      thisSheet.write(hostSheetRow, 1, errataInfo['type'])
-      thisSheet.write(hostSheetRow, 2, len(errataInfo['packages']))
-      thisSheet.write(hostSheetRow, 3, 'REBOOT' if errataInfo['reboot_suggested'] else '')
-      hostSheetRow+=1
-        
-  printDBG(2, "Generating errata sheets")
-  for errataName in sorted(listOfErrata):
-    errata = listOfErrata[errataName]
-    errataID = errata['errata_id'].replace(":", "-")
-    errataSheet = workbook.add_worksheet(errataID)
-    errataSheet.write(0, 0, "ID:")
-    errataSheet.write(0, 1, errata['errata_id'])
-    errataSheet.write(1, 0, "Name:")
-    errataSheet.write(1, 1, errata['name'])
-    errataSheet.write(2, 0, "Type:")
-    errataSheet.write(2, 1, errata['type'])
-    errataSheet.write(3, 0, "Reboot suggested:")
-    errataSheet.write(3, 1, 'YES' if errata['reboot_suggested'] else 'NO')
-    errataSheet.write(4, 0, "Affected packages:")
-    errataSheetRow = 5
-    for pkg in errata['packages']:
-      errataSheet.write(errataSheetRow, 1, pkg)
-      errataSheetRow+=1
+    topSheet.write(0, 0, "HOSTNAME")
+    topSheet.write(1, 0, "Account Number")
+    topSheet.write(1, 1, "Contract Number")
+    topSheet.write(1, 2, "End date")
+    topSheet.write(1, 3, "Subscription name")
+    topSheetRow = 2
+    for host in sorted(listOfHosts):
+      topSheet.write(topSheetRow, 0, host['name'])
+      topSheetRow+=1
+      for sub in host['subs']:
+        topSheet.write(topSheetRow, 0, sub['accountNum'])
+        topSheet.write(topSheetRow, 1, sub['contractNum'])
+        topSheet.write(topSheetRow, 2, sub['endDate'])
+        topSheet.write(topSheetRow, 3, sub['name'])
+        topSheetRow+=1
       
   printDBG(2, "Saving workbook")
   workbook.close()
