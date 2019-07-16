@@ -85,14 +85,19 @@ def generateXLSX():
     topSheet.write(1, 3, "Subscription name")
     topSheetRow = 2
     for host in sorted(listOfHosts):
-      topSheet.write(topSheetRow, 0, host['name'])
+      colNum=0
+      topSheet.write(topSheetRow, colNum, host['name'])
       topSheetRow+=1
+      colNum+=1
       for sub in host['subs']:
-        topSheet.write(topSheetRow, 0, sub['accountNum'])
-        topSheet.write(topSheetRow, 1, sub['contractNum'])
-        topSheet.write(topSheetRow, 2, sub['endDate'])
-        topSheet.write(topSheetRow, 3, sub['name'])
-        topSheetRow+=1
+        topSheet.write(topSheetRow, colNum, sub['accountNum'])
+        colNum+=1
+        topSheet.write(topSheetRow, colNum, sub['contractNum'])
+        colNum+=1
+        topSheet.write(topSheetRow, colNum, sub['endDate'])
+        colNum+=1
+        topSheet.write(topSheetRow, colNum, sub['name'])
+        colNum+=1
       
   printDBG(2, "Saving workbook")
   workbook.close()

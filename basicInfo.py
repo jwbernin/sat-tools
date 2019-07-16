@@ -35,6 +35,8 @@ def collectData():
   h=s.listHosts()
   for name in h:
     hostDetail = s.getHost(name['id'])
+    pprint.pprint(hostDetail)
+    sys.exit(0)
     if hostDetail['ip'] == None:
       continue
     if not hostObjects.has_key(hostDetail['name']):
@@ -49,7 +51,7 @@ def collectData():
       hostObjects[hostName]['bugErrata'] = str(hostDetail['content_facet_attributes']['errata_counts']['bugfix'])
       hostObjects[hostName]['enhErrata'] = str(hostDetail['content_facet_attributes']['errata_counts']['enhancement'])
       hostObjects[hostName]['pkgUpdates'] = str(hostDetail['content_facet_attributes']['upgradable_package_count'])
-      hostObjects[hostName]['katelloAgent'] = str(hostDetail['content_facet_attributes']['katello_agent_installed'])
+      hostObjects[hostName]['lastCheckin'] = str(hostDetail['content_facet_attributes']['lastCheckin'])
     else:
       hostObjects[hostName]['lifecycleEnvironment'] = 'NO DATA'
       hostObjects[hostName]['contentView'] = 'NO DATA'
